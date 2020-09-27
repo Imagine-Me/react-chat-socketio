@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
+
+import { useHistory } from 'react-router'
+import io from 'socket.io-client'
+
+
+import {v4 as uuidv4} from 'uuid'
+
 
 
 
@@ -39,6 +46,32 @@ const Home = (props) => {
     const [name, setName] = useState("")
     const classes = useStyles(props)
 
+    const history = useHistory()
+
+    const onSubmit = (event) => {
+        event.preventDefault()
+        if (props.socket !== null) {
+            const user = {}
+            user.name = name
+            user.id = uuidv4()
+            localStorage.setItem('p-react-chat', JSON.stringify(user))
+            history.push('/chat')
+        }
+    }
+
+    useEffect(() => {
+        props.setsocket(io())
+    }, [])
+
+    useEffect(() => {
+        if (props.socket !== null) {
+            if (localStorage.getItem('p-react-chat') !== undefined && localStorage.getItem('p-react-chat') !== null) {
+                setName(localStorage.getItem('p-react-chat').name)
+                history.push('/chat')
+            }
+        }
+    }, [props.socket])
+
     return (
         <Container component="main" maxWidth="xs">
             <CssBaseline />
@@ -49,7 +82,7 @@ const Home = (props) => {
                 <Typography component="h1" variant="h5">
                     Sign in
                 </Typography>
-                <form className={classes.form}>
+                <form className={classes.form} onSubmit={onSubmit}>
                     <TextField
                         variant="outlined"
                         margin="normal"

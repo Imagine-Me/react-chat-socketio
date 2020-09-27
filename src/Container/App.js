@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Home from './Home'
 import Chat from './Chat'
 import { Switch, Route } from 'react-router'
@@ -9,11 +9,17 @@ import { Switch, Route } from 'react-router'
 
 
 function App() {
+  const [socket, setSocket] = useState(null)
+
+  const changeSocket = (value) => {
+    setSocket(value)
+  }
+
   return (
     <div className="App">
       <Switch>
-        <Route path="/" exact component={Home} />
-        <Route path="/chat" exact component={Chat} />
+        <Route path="/" exact render={() => <Home socket={socket} setsocket= {changeSocket}  />} />
+        <Route path="/chat" exact render={() => <Chat socket={socket} />} />
       </Switch>
     </div>
   );
