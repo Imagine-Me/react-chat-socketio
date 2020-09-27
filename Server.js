@@ -20,10 +20,17 @@ io.on('connection', function (socket) {
         d.id = data.id
         let users = {}
         const data_file = fs.readFileSync('./data.json', 'utf-8')
-
+        console.log(data)
         if (data_file !== undefined && data_file !== "") {
             const users_d = JSON.parse(data_file).users
-            users_d.push(d)
+            let flag = true
+            for (let i = 0; i < users_d.length; i++) {
+                if (users_d[i].id === data.id) {
+                    flag = false
+                }
+            }
+            if (flag)
+                users_d.push(d)
             users.users = users_d
         } else {
             users.users = [d]
@@ -35,11 +42,11 @@ io.on('connection', function (socket) {
         this.userName = data.userName
         this.id = data.id
 
-        socket.emit("user_join", users)
+        socket.broadcast.emit('user_join', users)
         socket.broadcast.emit("user_joined", data.userName)
     })
-    socket.on("message", function (data) {
-        data.userName = this.userName
+    socket.on('message', function (data) {
+        console.log("MESSAGE ARRIVED ", data)
         socket.broadcast.emit('on_message', data)
     })
     socket.on('disconnect', function (data) {

@@ -9,8 +9,7 @@ const useStyle = makeStyles(theme => ({
     },
     Wrapper1: {
         display: 'flex',
-        marginBottom: '8px',
-        float: 'right'
+        marginBottom: '8px'
     },
     message1Arrow: {
         width: 0,
@@ -47,10 +46,10 @@ const Message = (props) => {
         <div className={classes.message1Arrow}></div>
         <div className={classes.Message}>
             <div className={classes.User}>
-                Prince
+                {props.name}
             </div>
             <div className={classes.Chat}>
-                Hello gud morning
+                {props.children}
             </div>
         </div>
     </div>
@@ -59,10 +58,10 @@ const Message = (props) => {
     m = <div className={classes.Wrapper1}>
         <div className={classes.Message1}>
             <div className={classes.User}>
-                Prince
+                {props.name}
             </div>
             <div className={classes.Chat}>
-                Hello gud morning
+                {props.children}
             </div>
         </div>
         <div className={classes.message2Arrow}></div>

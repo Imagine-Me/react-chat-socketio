@@ -107,7 +107,7 @@ const useStyles = makeStyles((theme) => ({
         padding: '7px',
         width: '50px'
     },
-    Message:{
+    Message: {
         padding: '0 15px 5px 15px'
     }
 }));
@@ -130,13 +130,14 @@ function Chat(props) {
             history.push('/')
             return
         }
-        const user = localStorage.getItem('p-react-chat')
+        const user = JSON.parse(localStorage.getItem('p-react-chat'))
         props.socket.emit('user_join', {
             userName: user.name,
             id: user.id
         })
         props.socket.on('user_join', function (data) {
-            const user = localStorage.getItem('p-react-chat')
+            console.log("USER JOINED.....")
+            const user = JSON.parse(localStorage.getItem('p-react-chat'))
             const id = user.id
             const d = data.users
             console.log(user, id, data, d)
@@ -145,20 +146,61 @@ function Chat(props) {
                 if (val.id !== id)
                     state_data.push(val)
             })
-            setUserDetail(old=>({
+            console.log("USERS ", state_data)
+            setUserDetail(old => ({
                 ...old,
                 user: state_data
             }))
         })
 
         props.socket.on('user_joined', function (data) {
-            console.log("User joined ", data)
+            
+        })
+
+        props.socket.on('on_message', function (data) {
+            setUserDetail(old => {
+                const d = [...old.messages]
+                d.push(data)
+                return {
+                    ...old,
+                    messages: d
+                }
+            })
         })
     }, [props.socket])
 
+    const keyupEvent = (event) => {
+        if (event.keyCode == 13) {
+            // Send value
+            sendData()
+        }
+    }
 
+    const sendData = () => {
+        if (userDetail.input !== "") {
+            props.socket.emit('message', {
+                msg: userDetail.input,
+                name: JSON.parse(localStorage.getItem('p-react-chat')).name
+            })
+            const d = [...userDetail.messages]
+            d.push({
+                name: "You",
+                msg: userDetail.input
+            })
+            setUserDetail(old => ({
+                ...old,
+                input: "",
+                messages: d
+            }))
+        }
+    }
 
-
+    const message = userDetail.messages.map((val, i) => {
+        if (val.name === "You")
+            return <div key={i} style={{ display: "flex", width: '100%', justifyContent: "flex-end" }}><Message user name='You' >{val.msg}</Message></div>
+        else
+            return <Message key={i} name={val.name} >{val.msg}</Message>
+    })
 
     const drawer = (
         <div>
@@ -176,8 +218,8 @@ function Chat(props) {
             <List>
                 {userDetail.user.map((user, index) => (
                     <ListItem button key={user}>
-                        <ListItemIcon><Avatar className={classes.users}>{JSON.parse(user).name.charAt(0)}</Avatar></ListItemIcon>
-                        <ListItemText primary={JSON.parse(user).name} />
+                        <ListItemIcon><Avatar className={classes.users}>{user.name.charAt(0)}</Avatar></ListItemIcon>
+                        <ListItemText primary={user.name} />
                     </ListItem>
                 ))}
             </List>
@@ -238,17 +280,15 @@ function Chat(props) {
             <main className={classes.content}>
                 <div className={classes.toolbar} />
                 <div className={classes.Message}>
-                    <Message />
-                    <UserJoin />
-                    <Message user />
+                    {message}
                 </div>
 
                 <div className={classes.chat}>
                     <div className={classes.inputFlex}>
                         <div className={classes.Input}>
-                            <TextField type="text" fullWidth style={{ padding: '10px' }} />
+                            <TextField type="text" fullWidth style={{ padding: '10px' }} onChange={(event) => setUserDetail(old => ({ ...old, input: event.target.value }))} value={userDetail.input} onKeyUp={keyupEvent} />
                         </div>
-                        <button className={classes.SendButton}><SendIcon style={{ color: 'white' }} /></button>
+                        <button className={classes.SendButton} onClick={sendData}><SendIcon style={{ color: 'white' }} /></button>
                     </div>
                 </div>
             </main>
