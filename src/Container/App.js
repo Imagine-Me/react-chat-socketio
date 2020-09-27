@@ -4,6 +4,8 @@ import Chat from './Chat'
 import { Switch, Route } from 'react-router'
 
 
+import { atom } from 'recoil'
+
 
 
 
@@ -18,7 +20,7 @@ function App() {
   return (
     <div className="App">
       <Switch>
-        <Route path="/" exact render={() => <Home socket={socket} setsocket= {changeSocket}  />} />
+        <Route path="/" exact render={() => <Home socket={socket} setsocket={changeSocket} />} />
         <Route path="/chat" exact render={() => <Chat socket={socket} />} />
       </Switch>
     </div>

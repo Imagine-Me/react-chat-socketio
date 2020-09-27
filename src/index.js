@@ -5,10 +5,14 @@ import './index.css';
 import App from './Container/App';
 import * as serviceWorker from './serviceWorker';
 
+import { RecoilRoot } from 'recoil'
+
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
-      <App />
+      <RecoilRoot>
+        <App />
+      </RecoilRoot>
     </BrowserRouter>
   </React.StrictMode>,
   document.getElementById('root')

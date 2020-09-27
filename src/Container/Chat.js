@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 
 import { useHistory } from 'react-router'
 import PropTypes from 'prop-types';
@@ -8,23 +8,31 @@ import Divider from '@material-ui/core/Divider';
 import Drawer from '@material-ui/core/Drawer';
 import Hidden from '@material-ui/core/Hidden';
 import IconButton from '@material-ui/core/IconButton';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import MailIcon from '@material-ui/icons/Mail';
 import MenuIcon from '@material-ui/icons/Menu';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar'
 import { makeStyles, useTheme } from '@material-ui/core/styles';
+import TextField from '@material-ui/core/TextField'
 
-const drawerWidth = 240;
+import SendIcon from '@material-ui/icons/Send';
+
+import { userState } from '../recoil/UserDetail'
+import { useRecoilState, useResetRecoilState } from 'recoil'
+
+import Message from '../Components/Message'
+import UserJoin from '../Components/UserJoin'
+
+const drawerWidth = 320;
 
 const useStyles = makeStyles((theme) => ({
     root: {
         display: 'flex',
+        height: '100%'
     },
     drawer: {
         [theme.breakpoints.up('sm')]: {
@@ -51,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
     },
     content: {
         flexGrow: 1,
-        padding: theme.spacing(3),
+        position: "relative"
     },
     centerContent: {
         display: 'flex',
@@ -65,6 +73,42 @@ const useStyles = makeStyles((theme) => ({
     users: {
         backgroundColor: theme.palette.secondary.main,
         textTransform: 'capitalize'
+    },
+    chat: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: '5px',
+        height: '50px',
+        padding: '0 15px'
+    },
+    inputFlex: {
+        display: 'flex',
+        height: '100%',
+        justifyContent: 'space-between'
+    },
+    Input: {
+        width: 'calc(100% - 60px)',
+        padding: '0 12.5px',
+        backgroundColor: 'rgb(230 230 230)',
+        borderRadius: '25px'
+    },
+    inputIcon: {
+        width: '35px',
+        textAlign: 'center',
+        padding: '5px'
+
+    },
+    SendButton: {
+        height: '100%',
+        backgroundColor: theme.palette.primary.main,
+        border: 'none',
+        borderRadius: '50%',
+        padding: '7px',
+        width: '50px'
+    },
+    Message:{
+        padding: '0 15px 5px 15px'
     }
 }));
 
@@ -73,7 +117,7 @@ function Chat(props) {
     const classes = useStyles();
     const theme = useTheme();
     const [mobileOpen, setMobileOpen] = React.useState(false);
-    const [users, setUsers] = useState([])
+    const [userDetail, setUserDetail] = useRecoilState(userState)
 
     const history = useHistory()
 
@@ -95,13 +139,20 @@ function Chat(props) {
             const user = localStorage.getItem('p-react-chat')
             const id = user.id
             const d = data.users
-            console.log(user,id,data,d)
+            console.log(user, id, data, d)
             const state_data = [user]
             d.map(val => {
                 if (val.id !== id)
                     state_data.push(val)
             })
-            setUsers(state_data)
+            setUserDetail(old=>({
+                ...old,
+                user: state_data
+            }))
+        })
+
+        props.socket.on('user_joined', function (data) {
+            console.log("User joined ", data)
         })
     }, [props.socket])
 
@@ -123,7 +174,7 @@ function Chat(props) {
             </List>
             <Divider />
             <List>
-                {users.map((user, index) => (
+                {userDetail.user.map((user, index) => (
                     <ListItem button key={user}>
                         <ListItemIcon><Avatar className={classes.users}>{JSON.parse(user).name.charAt(0)}</Avatar></ListItemIcon>
                         <ListItemText primary={JSON.parse(user).name} />
@@ -150,12 +201,11 @@ function Chat(props) {
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap>
-                        Responsive drawer
-          </Typography>
+                        General
+                    </Typography>
                 </Toolbar>
             </AppBar>
             <nav className={classes.drawer} aria-label="mailbox folders">
-                {/* The implementation can be swapped with js to avoid SEO duplication of links. */}
                 <Hidden smUp implementation="css">
                     <Drawer
                         container={container}
@@ -167,7 +217,7 @@ function Chat(props) {
                             paper: classes.drawerPaper,
                         }}
                         ModalProps={{
-                            keepMounted: true, // Better open performance on mobile.
+                            keepMounted: true,
                         }}
                     >
                         {drawer}
@@ -187,6 +237,20 @@ function Chat(props) {
             </nav>
             <main className={classes.content}>
                 <div className={classes.toolbar} />
+                <div className={classes.Message}>
+                    <Message />
+                    <UserJoin />
+                    <Message user />
+                </div>
+
+                <div className={classes.chat}>
+                    <div className={classes.inputFlex}>
+                        <div className={classes.Input}>
+                            <TextField type="text" fullWidth style={{ padding: '10px' }} />
+                        </div>
+                        <button className={classes.SendButton}><SendIcon style={{ color: 'white' }} /></button>
+                    </div>
+                </div>
             </main>
         </div>
     );

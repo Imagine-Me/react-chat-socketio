@@ -36,6 +36,7 @@ io.on('connection', function (socket) {
         this.id = data.id
 
         socket.emit("user_join", users)
+        socket.broadcast.emit("user_joined", data.userName)
     })
     socket.on("message", function (data) {
         data.userName = this.userName
