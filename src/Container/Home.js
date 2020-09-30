@@ -60,7 +60,7 @@ const Home = (props) => {
     }
 
     useEffect(() => {
-        props.setsocket(io())
+        props.setsocket(io('https://p-react-chat-app.herokuapp.com/'))
     }, [])
 
     useEffect(() => {
