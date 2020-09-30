@@ -59,7 +59,8 @@ const useStyles = makeStyles((theme) => ({
     },
     content: {
         flexGrow: 1,
-        position: "relative"
+        position: "relative",
+        marginBottom: '70px'
     },
     centerContent: {
         display: 'flex',
@@ -75,12 +76,13 @@ const useStyles = makeStyles((theme) => ({
         textTransform: 'capitalize'
     },
     chat: {
-        position: 'absolute',
-        left: 0,
+        position: 'fixed',
+        left: drawerWidth,
         right: 0,
-        bottom: '5px',
-        height: '50px',
-        padding: '0 15px'
+        bottom: '0',
+        backgroundColor: 'white',
+        height: '65px',
+        padding: '7px 15px'
     },
     inputFlex: {
         display: 'flex',
